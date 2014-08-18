@@ -76,7 +76,7 @@ public:
     void addPOSTValue(const char *key, const char *value);
 
     /** @brief Set POST data to the request body, POST only. */
-    void setPOSTData(const char *data);
+    void setPOSTData(const char *data, int size);
 
 
 	void addFormFile(const char *name, const char *filePath, const char *fileType="application/octet-stream");

@@ -326,7 +326,7 @@ static const char* const SANDBOX_RECEIPT_VERIFY_URL = "https://sandbox.itunes.ap
     CCStoreReceiptVerifyRequestIOS* handler = CCStoreReceiptVerifyRequestIOS::create(self, transaction, url);
 
     handler->getRequest()->addRequestHeader("Content-Type: application/json");
-    handler->getRequest()->setPOSTData([postData cStringUsingEncoding:NSUTF8StringEncoding]);
+    handler->getRequest()->setPOSTData([postData cStringUsingEncoding:NSUTF8StringEncoding], postData.length);
     handler->getRequest()->start();
 }
 

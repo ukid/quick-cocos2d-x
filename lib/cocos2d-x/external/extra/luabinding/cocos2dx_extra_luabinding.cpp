@@ -830,7 +830,8 @@ static int tolua_cocos2dx_extra_luabinding_CCHTTPRequest_setPOSTData00(lua_State
  if (
      !tolua_isusertype(tolua_S,1,"CCHTTPRequest",0,&tolua_err) ||
      !tolua_isstring(tolua_S,2,0,&tolua_err) ||
-     !tolua_isnoobj(tolua_S,3,&tolua_err)
+     !tolua_isnumber(tolua_S,3,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,4,&tolua_err)
  )
   goto tolua_lerror;
  else
@@ -838,11 +839,12 @@ static int tolua_cocos2dx_extra_luabinding_CCHTTPRequest_setPOSTData00(lua_State
  {
   CCHTTPRequest* self = (CCHTTPRequest*)  tolua_tousertype(tolua_S,1,0);
   const char* data = ((const char*)  tolua_tostring(tolua_S,2,0));
+  int size = ((int)  tolua_tonumber(tolua_S,3,0));
 #ifndef TOLUA_RELEASE
   if (!self) tolua_error(tolua_S,"invalid 'self' in function 'setPOSTData'", NULL);
 #endif
   {
-   self->setPOSTData(data);
+   self->setPOSTData(data,size);
   }
  }
  return 0;

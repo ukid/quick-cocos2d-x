@@ -108,13 +108,15 @@ void CCHTTPRequest::addPOSTValue(const char *key, const char *value)
     m_postFields[string(key)] = string(value ? value : "");
 }
 
-void CCHTTPRequest::setPOSTData(const char *data)
+void CCHTTPRequest::setPOSTData(const char *data, int size)
 {
     CCAssert(m_state == kCCHTTPRequestStateIdle, "CCHTTPRequest::setPOSTData() - request not idle");
     CCAssert(data, "CCHTTPRequest::setPOSTData() - invalid post data");
     m_postFields.clear();
     curl_easy_setopt(m_curl, CURLOPT_POST, 1L);
-    curl_easy_setopt(m_curl, CURLOPT_COPYPOSTFIELDS, data);
+	curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, data);
+    //curl_easy_setopt(m_curl, CURLOPT_COPYPOSTFIELDS, data);
+	curl_easy_setopt(m_curl, CURLOPT_POSTFIELDSIZE, size);
 }
 
 void CCHTTPRequest::addFormFile(const char *name, const char *filePath, const char *contentType)
@@ -484,11 +486,11 @@ size_t CCHTTPRequest::onWriteHeader(void *buffer, size_t bytes)
 
 int CCHTTPRequest::onProgress(double dltotal, double dlnow, double ultotal, double ulnow)
 {
-    m_dltotal = dltotal;
+ 	m_dltotal = dltotal;
     m_dlnow = dlnow;
     m_ultotal = ultotal;
     m_ulnow = ulnow;
-    
+
     return m_state == kCCHTTPRequestStateCancelled ? 1: 0;
 }
 
