@@ -366,7 +366,7 @@ end
 function CCSUILoader:createNode(options)
 	local node = cc.Node:create()
 	if not options.ignoreSize then
-		node:setContentSize(cc.size(options.width, options.height))
+		node:setContentSize(cc.size(options.width or 0, options.height or 0))
 	end
 	node:setPositionX(options.x or 0)
 	node:setPositionY(options.y or 0)
@@ -415,14 +415,12 @@ function CCSUILoader:createImage(options)
 	-- end
 
 	if not options.scale9Enable then
-		if options.scale9Width or options.scale9Height then
-			local originSize = node:getContentSize()
-			if options.scale9Width then
-				options.scaleX = (options.scaleX or 1) * options.scale9Width/originSize.width
-			end
-			if options.scale9Height then
-				options.scaleY = (options.scaleY or 1) * options.scale9Height/originSize.height
-			end
+		local originSize = node:getContentSize()
+		if options.width then
+			options.scaleX = (options.scaleX or 1) * options.width/originSize.width
+		end
+		if options.height then
+			options.scaleY = (options.scaleY or 1) * options.height/originSize.height
 		end
 	end
 	if not options.ignoreSize then
@@ -595,7 +593,12 @@ end
 
 function CCSUILoader:createPanel(options)
 	-- local node = display.newNode() --cc.ClippingRegionNode:create()
-	local node = cc.ClippingNode:create()
+	local node
+	if options.clipAble then
+		node = cc.ClippingNode:create()
+	else
+		node = display.newNode()
+	end
 	local clrLayer
 	local bgLayer
 
@@ -646,11 +649,14 @@ function CCSUILoader:createPanel(options)
 		options.height = display.height
 	end
 	conSize = cc.size(options.width, options.height)
-	-- node:setClippingRegion(cc.rect(0, 0, options.width, options.height))
-	local stencil = display.newNode()
-	stencil:setContentSize(options.width, options.height)
-	node:setStencil(stencil)
-	node:setInverted(true)
+
+	if options.clipAble then
+		local stencil = display.newNode()
+		stencil:setContentSize(options.width, options.height)
+		node:setStencil(stencil)
+		node:setInverted(true)
+	end
+
 	if not options.ignoreSize then
 		if clrLayer then
 			clrLayer:setContentSize(conSize)
@@ -745,7 +751,7 @@ function CCSUILoader:createListView(options)
 	end
 
 	local node = cc.ui.UIListView.new(params)
-	local dir = options.direction
+	local dir = options.direction or 1
 	-- ccs listView 0:none 1:vertical 2:horizontal 3:vertical and horizontal
 	-- quick 0:both 1:vertical 2:horizontal
 	if 0 == dir then

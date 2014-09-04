@@ -11,6 +11,7 @@ UIScrollView.DIRECTION_HORIZONTAL	= 2
 
 function UIScrollView:ctor(params)
 	self.bBounce = true
+	self.nShakeVal = 5
 	self.direction = UIScrollView.DIRECTION_BOTH
 	self.layoutPadding = {left = 0, right = 0, top = 0, bottom = 0}
 	self.speed = {x = 0, y = 0}
@@ -88,11 +89,21 @@ function UIScrollView:addBgIf(params)
 end
 
 function UIScrollView:setViewRect(rect)
+	if "CCRect" == tolua.type(rect) then
+		rect.x = rect.origin.x
+		rect.y = rect.origin.y
+		rect.width = rect.size.width
+		rect.height = rect.size.height
+	end
 	self:setClippingRegion(rect)
 	self.viewRect_ = rect
 	self.viewRectIsNodeSpace = false
 
 	return self
+end
+
+function UIScrollView:getViewRect()
+	return self.viewRect_
 end
 
 function UIScrollView:setLayoutPadding(top, right, bottom, left)
@@ -113,6 +124,10 @@ function UIScrollView:setDirection(dir)
 	self.direction = dir
 
 	return self
+end
+
+function UIScrollView:getDirection()
+	return self.direction
 end
 
 function UIScrollView:setBounceable(bBounceable)
@@ -182,6 +197,10 @@ function UIScrollView:addScrollNode(node)
     return self
 end
 
+function UIScrollView:getScrollNode()
+	return self.scrollNode
+end
+
 function UIScrollView:onScroll(listener)
 	self.scrollListener_ = listener
 
@@ -233,8 +252,14 @@ function UIScrollView:onTouch_(event)
 		self:enableScrollBar()
 		-- self:changeViewRectToNodeSpaceIf()
 
+		self.scaleToWorldSpace_ = self:scaleToParent_()
+
 		return true
 	elseif "moved" == event.name then
+		if self:isShake(event) then
+			return
+		end
+
 		self.bDrag_ = true
 		self.speed.x = event.x - event.prevX
 		self.speed.y = event.y - event.prevY
@@ -306,11 +331,13 @@ function UIScrollView:moveXY(orgX, orgY, speedX, speedY)
 	if speedX > 0 then
 		if cascadeBound.x < viewRect.x then
 			disX = viewRect.x - cascadeBound.x
+			disX = disX / self.scaleToWorldSpace_.x
 			x = orgX + math.min(disX, speedX)
 		end
 	else
 		if cascadeBound.x + cascadeBound.width > viewRect.x + viewRect.width then
 			disX = viewRect.x + viewRect.width - cascadeBound.x - cascadeBound.width
+			disX = disX / self.scaleToWorldSpace_.x
 			x = orgX + math.max(disX, speedX)
 		end
 	end
@@ -318,11 +345,13 @@ function UIScrollView:moveXY(orgX, orgY, speedX, speedY)
 	if speedY > 0 then
 		if cascadeBound.y < viewRect.y then
 			disY = viewRect.y - cascadeBound.y
+			disY = disY / self.scaleToWorldSpace_.y
 			y = orgY + math.min(disY, speedY)
 		end
 	else
 		if cascadeBound.y + cascadeBound.height > viewRect.y + viewRect.height then
 			disY = viewRect.y + viewRect.height - cascadeBound.y - cascadeBound.height
+			disY = disY / self.scaleToWorldSpace_.y
 			y = orgY + math.max(disY, speedY)
 		end
 	end
@@ -557,7 +586,31 @@ function UIScrollView:changeViewRectToNodeSpaceIf()
 	self.viewRect_.x = self.viewRect_.x + ws.x
 	self.viewRect_.y = self.viewRect_.y + ws.y
 	self.viewRectIsNodeSpace = true
-	print("htl changeViewRectToNodeSpaceIf()")
+end
+
+function UIScrollView:isShake(event)
+	if math.abs(event.x - self.prevX_) < self.nShakeVal
+		and math.abs(event.y - self.prevY_) < self.nShakeVal then
+		return true
+	end
+end
+
+function UIScrollView:scaleToParent_()
+	local parent
+	local node = self
+	local scale = {x = 1, y = 1}
+
+	while true do
+		scale.x = scale.x * node:getScaleX()
+		scale.y = scale.y * node:getScaleY()
+		parent = node:getParent()
+		if not parent then
+			break
+		end
+		node = parent
+	end
+
+	return scale
 end
 
 return UIScrollView
