@@ -1,6 +1,6 @@
 /*
 ** Lua binding: cocos2dx_httprequest_luabinding
-** Generated automatically by tolua++-1.0.92 on Wed Oct 22 00:31:05 2014.
+** Generated automatically by tolua++-1.0.92 on Mon Oct 27 15:27:24 2014.
 */
 
 #include "cocos2dx_httprequest_luabinding.h"
@@ -211,7 +211,8 @@ static int tolua_cocos2dx_httprequest_luabinding_CCHTTPRequest_setPOSTData00(lua
  if (
      !tolua_isusertype(tolua_S,1,"CCHTTPRequest",0,&tolua_err) ||
      !tolua_isstring(tolua_S,2,0,&tolua_err) ||
-     !tolua_isnoobj(tolua_S,3,&tolua_err)
+     !tolua_isnumber(tolua_S,3,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,4,&tolua_err)
  )
   goto tolua_lerror;
  else
@@ -219,11 +220,12 @@ static int tolua_cocos2dx_httprequest_luabinding_CCHTTPRequest_setPOSTData00(lua
  {
   CCHTTPRequest* self = (CCHTTPRequest*)  tolua_tousertype(tolua_S,1,0);
   const char* data = ((const char*)  tolua_tostring(tolua_S,2,0));
+  const int size = ((const int)  tolua_tonumber(tolua_S,3,0));
 #ifndef TOLUA_RELEASE
   if (!self) tolua_error(tolua_S,"invalid 'self' in function 'setPOSTData'", NULL);
 #endif
   {
-   self->setPOSTData(data);
+   self->setPOSTData(data,size);
   }
  }
  return 0;
