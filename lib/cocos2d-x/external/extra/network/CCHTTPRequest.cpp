@@ -486,11 +486,11 @@ size_t CCHTTPRequest::onWriteHeader(void *buffer, size_t bytes)
 
 int CCHTTPRequest::onProgress(double dltotal, double dlnow, double ultotal, double ulnow)
 {
- 	m_dltotal = dltotal;
+    m_dltotal = dltotal;
     m_dlnow = dlnow;
     m_ultotal = ultotal;
     m_ulnow = ulnow;
-
+    
     return m_state == kCCHTTPRequestStateCancelled ? 1: 0;
 }
 
