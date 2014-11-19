@@ -129,6 +129,8 @@ public:
     static LUA_STRING MD5Lua(char* input, bool isRawOutput);
 
     static LUA_STRING MD5FileLua(const char* path);
+    
+    static LUA_STRING MD5StringLua(char* input, int inputLength);
 
 #endif /* CC_LUA_ENGINE_ENABLED */
     

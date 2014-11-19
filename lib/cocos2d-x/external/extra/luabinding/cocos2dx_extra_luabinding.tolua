@@ -38,6 +38,8 @@ public:
     static LUA_STRING MD5Lua @ MD5 (char* input, bool isRawOutput);
 
     static LUA_STRING MD5FileLua @ MD5File(const char* path);
+    
+    static LUA_STRING MD5StringLua @ MD5String (char* input, int inputLength);
 };
 
 //

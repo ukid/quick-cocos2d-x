@@ -1,6 +1,6 @@
 /*
 ** Lua binding: cocos2dx_extra_luabinding
-** Generated automatically by tolua++-1.0.92 on Wed Oct 22 00:31:05 2014.
+** Generated automatically by tolua++-1.0.92 on Wed Nov 19 15:30:59 2014.
 */
 
 #include "cocos2dx_extra_luabinding.h"
@@ -326,6 +326,38 @@ static int tolua_cocos2dx_extra_luabinding_CCCrypto_MD5File00(lua_State* tolua_S
 #ifndef TOLUA_RELEASE
  tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'MD5File'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: MD5StringLua of class  CCCrypto */
+#ifndef TOLUA_DISABLE_tolua_cocos2dx_extra_luabinding_CCCrypto_MD5String00
+static int tolua_cocos2dx_extra_luabinding_CCCrypto_MD5String00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertable(tolua_S,1,"CCCrypto",0,&tolua_err) ||
+     !tolua_isstring(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,3,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,4,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  char* input = ((char*)  tolua_tostring(tolua_S,2,0));
+  int inputLength = ((int)  tolua_tonumber(tolua_S,3,0));
+  {
+     CCCrypto::MD5StringLua(input,inputLength);
+   
+  }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'MD5String'.",&tolua_err);
  return 0;
 #endif
 }
@@ -782,6 +814,7 @@ TOLUA_API int tolua_cocos2dx_extra_luabinding_open (lua_State* tolua_S)
    tolua_function(tolua_S,"decodeBase64",tolua_cocos2dx_extra_luabinding_CCCrypto_decodeBase6400);
    tolua_function(tolua_S,"MD5",tolua_cocos2dx_extra_luabinding_CCCrypto_MD500);
    tolua_function(tolua_S,"MD5File",tolua_cocos2dx_extra_luabinding_CCCrypto_MD5File00);
+   tolua_function(tolua_S,"MD5String",tolua_cocos2dx_extra_luabinding_CCCrypto_MD5String00);
   tolua_endmodule(tolua_S);
   tolua_cclass(tolua_S,"CCNative","CCNative","",NULL);
   tolua_beginmodule(tolua_S,"CCNative");
