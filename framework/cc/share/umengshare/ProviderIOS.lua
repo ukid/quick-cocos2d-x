@@ -74,9 +74,10 @@ function ProviderIOS:shareText(text)
     end
 end
 
-function ProviderIOS:shareImg(text, img)
+function ProviderIOS:shareImg(text, img, justImg)
+	justImg = justImg or "false"
 	local ok = luaoc.callStaticMethod(SDK_CLASS_NAME, "share",
-		{shareText = text, shareImage = img})
+		{shareText = text, shareImage = img, onlyImg = justImg})
 	if not ok then
         printError("cc.share.ProviderIOS:shareImg() - call shareImg failed.")
     end

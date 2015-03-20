@@ -34,7 +34,8 @@ bool AppDelegate::applicationDidFinishLaunching()
     pDirector->setProjection(kCCDirectorProjection2D);
 
     // set FPS. the default value is 1.0/60 if you don't call this
-    pDirector->setAnimationInterval(1.0 / 60);
+    //pDirector->setAnimationInterval(1.0 / 60);
+    pDirector->setAnimationInterval(1.0 / 30);
 
     // register lua engine
     CCScriptEngineManager::sharedManager()->setScriptEngine(CCLuaEngine::defaultEngine());
@@ -150,6 +151,9 @@ void StartupCall::startup()
 {
     CCLuaEngine *pEngine = CCLuaEngine::defaultEngine();
     CCLuaStack *pStack = pEngine->getLuaStack();
+
+	//encryption
+    pStack->setXXTEAKeyAndSign("XzaqMxswDEhytc", 14, "XMGCAFESIGN", 11);
 
     ProjectConfig &projectConfig = m_app->m_projectConfig;
 
