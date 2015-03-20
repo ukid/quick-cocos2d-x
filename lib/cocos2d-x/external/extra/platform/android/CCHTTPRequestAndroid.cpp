@@ -66,10 +66,9 @@ static jclass getClassID_(const char *className, JNIEnv *env)
         
         if (NULL == s_classHttp) {
             ret = pEnv->FindClass(className);
-            s_classHttp = ret;
-        } else {
-            ret = (jclass)pEnv->NewLocalRef(s_classHttp);
+            s_classHttp = (jclass)pEnv->NewGlobalRef(ret);
         }
+        ret = (jclass)pEnv->NewLocalRef(s_classHttp);
         
         if (! ret)
         {
@@ -212,18 +211,37 @@ void CCHTTPRequest::addPOSTValue(const char *key, const char *value)
     m_postFields[string(key)] = string(value ? value : "");
 }
 
-void CCHTTPRequest::setPOSTData(const char *data)
+void CCHTTPRequest::setPOSTData(const char *data, size_t len)
 {
     CCAssert(m_state == kCCHTTPRequestStateIdle, "CCHTTPRequest::setPOSTData() - request not idle");
     CCAssert(data, "CCHTTPRequest::setPOSTData() - invalid post data");
     m_postFields.clear();
-    m_postFields[string("")] = string(data ? data : "");
+    if (0 == len) {
+        len = strlen(data);
+    }
+    if (0 == len) {
+        return;
+    }
+    if (m_postData)
+    {
+        free(m_postData);
+        m_postDataLen = 0;
+        m_postData = NULL;
+    }
+    m_postData = malloc(len + 1);
+    memset(m_postData, 0, len + 1);
+    if (NULL == m_postData)
+    {
+        return;
+    }
+    memcpy(m_postData, data, len);
+    m_postDataLen = len;
 }
 
 void CCHTTPRequest::addFormFile(const char *name, const char *filePath, const char *contentType)
 {
     m_postFile[string(name)] = string(filePath);
-    string str = string("Content-Type=");
+    string str = string("Content-Type:");
     str = str.append(contentType);
     m_headers.push_back(str);
 }
@@ -231,7 +249,7 @@ void CCHTTPRequest::addFormFile(const char *name, const char *filePath, const ch
 void CCHTTPRequest::addFormContents(const char *name, const char *value)
 {
     m_postContent[string(name)] = string(value);
-    string str = string("Content-Type=multipart/form-data");
+    string str = string("Content-Type:multipart/form-data");
     m_headers.push_back(str);
     CCLOG("addFormContents:%d", m_headers.size());
 }
@@ -277,7 +295,7 @@ bool CCHTTPRequest::start(void)
     {
         string val = *it;
         int len = val.length();
-        int pos = val.find('=');
+        int pos = val.find(':');
         if (-1 == pos || pos >= len) {
             continue;
         }
@@ -422,7 +440,7 @@ void CCHTTPRequest::update(float dt)
         {
             CCLuaValueDict dict;
 
-            dict["name"] = CCLuaValue::stringValue("progress");
+            dict["name"] = CCLuaValue::stringValue("inprogress");
             dict["total"] = CCLuaValue::intValue(m_ultotal);
             dict["dltotal"] = CCLuaValue::intValue(m_dltotal);
             dict["request"] = CCLuaValue::ccobjectValue(this, "CCHTTPRequest");
@@ -503,6 +521,11 @@ void CCHTTPRequest::onRequest(void)
                 postContentJava(it->first.c_str(), it->second.c_str(), bNeedConnectSym);
                 bNeedConnectSym = true;
             }
+        }
+
+        if (m_postDataLen > 0)
+        {
+            postContentByteArrayJava(m_postData, m_postDataLen);
         }
 
         if (m_postContent.size() > 0)
@@ -626,6 +649,12 @@ void CCHTTPRequest::cleanup(void)
     m_state = kCCHTTPRequestStateCleared;
     m_responseBufferLength = 0;
     m_responseDataLength = 0;
+    m_postDataLen = 0;
+    if (m_postData)
+    {
+        free(m_postData);
+        m_postData = NULL;
+    }
     if (m_responseBuffer)
     {
         free(m_responseBuffer);
@@ -798,6 +827,23 @@ void CCHTTPRequest::postContentJava(const char* key, const char* value, bool bCo
             methodInfo.classID, methodInfo.methodID, m_httpConnect, jstrKey, jstrVal, bConnectSym);
         methodInfo.env->DeleteLocalRef(jstrKey);
         methodInfo.env->DeleteLocalRef(jstrVal);
+        methodInfo.env->DeleteLocalRef(methodInfo.classID);
+    }
+}
+
+void CCHTTPRequest::postContentByteArrayJava(void* val, size_t len) {
+    JniMethodInfo methodInfo;
+    if (getStaticMethodInfo(methodInfo,
+        "org/cocos2dx/lib/QuickHTTPInterface",
+        "postContentByteArray",
+        "(Ljava/net/HttpURLConnection;[B)V"))
+    {
+        jbyteArray bytearray;
+        bytearray = methodInfo.env->NewByteArray(len);
+        methodInfo.env->SetByteArrayRegion(bytearray, 0, len, (const jbyte*)val);
+        methodInfo.env->CallStaticVoidMethod(
+            methodInfo.classID, methodInfo.methodID, m_httpConnect, bytearray);
+        methodInfo.env->DeleteLocalRef(bytearray);
         methodInfo.env->DeleteLocalRef(methodInfo.classID);
     }
 }
