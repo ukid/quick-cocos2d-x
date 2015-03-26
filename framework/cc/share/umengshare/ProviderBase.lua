@@ -33,8 +33,6 @@ function ProviderBase:doCommand(args)
         self:shareText(args.args.shareText)
     elseif args.command == "shareImg" then
         self:shareImg(args.args.shareText, args.args.shareImg)
-    elseif args.command == "shareImgOnly" then
-        self:shareImg(args.args.shareText, args.args.shareImg, "true")
     elseif args.command == "shareMusic" then
         self:shareMusic(args.args.shareText, args.args.shareMusic,
         		args.args.shareMusicImg, args.args.shareTitle, args.args.shareAuthor)
