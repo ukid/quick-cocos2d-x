@@ -209,26 +209,30 @@ class FilesPacker
             {
                 #$moduleName = substr(substr($path, $this->config['srcpathLength']), 0, -4);
                 $moduleName = substr($path, $this->config['srcpathLength']);
-                $moduleName = str_replace('.', SPLIT_CHAR, $moduleName);
-                $tempFilePath = $this->config['srcpath'] . DS . $moduleName . '.tmp';
-                $moduleName = str_replace(DS, '.', $moduleName);
                 $skip = false;
 
                 foreach ($this->config['excludes'] as $key => $exclude)
                 {
-                    if (substr($moduleName, 0, strlen($exclude)) == $exclude)
+                    if (substr($moduleName, -strlen($exclude), strlen($exclude)) == $exclude)
                     {
-                        unset($files[$key]);
                         $skip = true;
                         break;
                     }
                 }
 
-                if ($skip) continue;
+                if ($skip) 
+                {
+                    printf("will skip file: %s\n", $moduleName);
+                }
+
+                $moduleName = str_replace('.', SPLIT_CHAR, $moduleName);
+                $tempFilePath = $this->config['srcpath'] . DS . $moduleName . '.tmp';
+                $moduleName = str_replace(DS, '.', $moduleName);
 
                 $bytesName = 'lua_m_' . strtolower(str_replace(array('.', '-'), '_', $moduleName));
 
                 $modules[$path] = array(
+                    'skip'=>$skip,
                     'moduleName' => $moduleName,
                     'tempFilePath' => $tempFilePath,
                     'bytesName' => $bytesName,
@@ -261,7 +265,7 @@ class FilesPacker
         foreach ($modules as $path => $module)
         {
             $bytes = file_get_contents($path);
-            if (!empty($key))
+            if (!empty($key) && !$module['skip'])
             {
                 $bytes = $sign . $xxtea->encrypt($bytes);
             }
